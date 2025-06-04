@@ -1,17 +1,14 @@
-
-
-
 body {
     font-family: Arial, sans-serif;
     background: #f9f9f9;
-    padding: 20px;
+    padding: 60px;
     max-width: 400px;
     margin: 0 auto;
 }
 
 h1 {
     text-align: center;
-    color: #333;
+    color: brown;
 }
 
 form {
@@ -61,7 +58,7 @@ li {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1)
 }
 
 li.completed {
