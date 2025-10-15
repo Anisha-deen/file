@@ -1,67 +1,90 @@
-// Get DOM elements
-const expenseNameInput = document.getElementById('expense-name');
-const expenseAmountInput = document.getElementById('expense-amount');
-const addExpenseButton = document.getElementById('add-expense');
-const expenseList = document.getElementById('expense-list');
-const totalAmountElement = document.getElementById('total-amount');
+//script.js
+document.addEventListener("DOMContentLoaded", () => {
+    const expenseForm = document.getElementById("expense-form");
+    const expenseList = document.getElementById("expense-list");
+    const totalAmount = document.getElementById("total-amount");
+    const filterCategory = document.getElementById("filter-category");
 
-// Array to store expenses
-let expenses = [];
+    let expenses = [];
 
-// Function to add expense
-function addExpense() {
-    const expenseName = expenseNameInput.value.trim();
-    const expenseAmount = parseFloat(expenseAmountInput.value.trim());
+    expenseForm.addEventListener("submit", (e) => {
+        e.preventDefault();
 
-    if (expenseName === '' || isNaN(expenseAmount) || expenseAmount <= 0) {
-        alert('Please enter a valid expense name and amount');
-        return;
+        const name = document.getElementById("expense-name").value;
+        const amount = parseFloat(document.getElementById("expense-amount").value);
+        const category = document.getElementById("expense-category").value;
+        const date = document.getElementById("expense-date").value;
+
+        const expense = {
+            id: Date.now(),
+            name,
+            amount,
+            category,
+            date
+        };
+
+        expenses.push(expense);
+        displayExpenses(expenses);
+        updateTotalAmount();
+
+        expenseForm.reset();
+    });
+
+    expenseList.addEventListener("click", (e) => {
+        if (e.target.classList.contains("delete-btn")) {
+            const id = parseInt(e.target.dataset.id);
+            expenses = expenses.filter(expense => expense.id !== id);
+            displayExpenses(expenses);
+            updateTotalAmount();
+        }
+
+        if (e.target.classList.contains("edit-btn")) {
+            const id = parseInt(e.target.dataset.id);
+            const expense = expenses.find(expense => expense.id === id);
+
+            document.getElementById("expense-name").value = expense.name;
+            document.getElementById("expense-amount").value = expense.amount;
+            document.getElementById("expense-category").value = expense.category;
+            document.getElementById("expense-date").value = expense.date;
+
+            expenses = expenses.filter(expense => expense.id !== id);
+            displayExpenses(expenses);
+            updateTotalAmount();
+        }
+    });
+
+    filterCategory.addEventListener("change", (e) => {
+        const category = e.target.value;
+        if (category === "All") {
+            displayExpenses(expenses);
+        } else {
+            const filteredExpenses = expenses.filter(expense => expense.category === category);
+            displayExpenses(filteredExpenses);
+        }
+    });
+
+    function displayExpenses(expenses) {
+        expenseList.innerHTML = "";
+        expenses.forEach(expense => {
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td>${expense.name}</td>
+                <td>$${expense.amount.toFixed(2)}</td>
+                <td>${expense.category}</td>
+                <td>${expense.date}</td>
+                <td>
+                    <button class="edit-btn" data-id="${expense.id}">Edit</button>
+                    <button class="delete-btn" data-id="${expense.id}">Delete</button>
+                </td>
+            `;
+
+            expenseList.appendChild(row);
+        });
     }
 
-    // Create expense object
-    const expense = {
-        name: expenseName,
-        amount: expenseAmount
-    };
-
-    // Add expense to the expenses array
-    expenses.push(expense);
-
-    // Clear the input fields
-    expenseNameInput.value = '';
-    expenseAmountInput.value = '';
-
-    // Update the UI
-    displayExpenses();
-    updateTotalAmount();
-}
-
-// Function to display expenses
-function displayExpenses() {
-    // Clear the current list
-    expenseList.innerHTML = '';
-
-    // Loop through the expenses and display them
-    expenses.forEach((expense, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `${expense.name} - $${expense.amount.toFixed(2)} 
-            <button class="delete-expense" onclick="deleteExpense(${index})">Delete</button>`;
-        expenseList.appendChild(li);
-    });
-}
-
-// Function to delete an expense
-function deleteExpense(index) {
-    expenses.splice(index, 1);
-    displayExpenses();
-    updateTotalAmount();
-}
-
-// Function to update total amount
-function updateTotalAmount() {
-    const totalAmount = expenses.reduce((total, expense) => total + expense.amount, 0);
-    totalAmountElement.textContent = totalAmount.toFixed(2);
-}
-
-// Event listener for add expense button
-addExpenseButton.addEventListener('click', addExpense);
+    function updateTotalAmount() {
+        const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        totalAmount.textContent = total.toFixed(2);
+    }
+});
